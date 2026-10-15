@@ -218,3 +218,27 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# PAI runtime artifacts and credentials
+.env
+.env.*
+!.env.example
+*.safetensors
+*.npz
+venv*/
+.venv*/
+runs/
+it_desk/vendor/
+it_desk/robot_assets/
+it_desk/openarm.urdf
+it_desk/ros_distro.txt
+it_desk/ros_python.txt
+*.log
+.huggingface/
+
+# Submission artifacts retained locally; not authorized for GitHub publication
+archive/
+evidence/
+media/
+docs/*.pdf
+docs/*.docx
