@@ -10,7 +10,7 @@ def main():
     p.add_argument('--checkpoint',type=Path,required=True)
     p.add_argument('--out',type=Path,required=True)
     a=p.parse_args();root=Path(__file__).resolve().parents[1]
-    a.out=a.out.resolve();a.checkpoint=a.checkpoint.resolve();a.python=a.python.resolve()
+    a.out=a.out.resolve();a.checkpoint=a.checkpoint.resolve();a.python=a.python.expanduser().absolute()
     if a.out.exists():raise RuntimeError('Use a new output directory; existing results are preserved')
     report=json.loads((a.checkpoint/'training_result.json').read_text())
     if report.get('status')!='trained':raise RuntimeError('Checkpoint is not trained')
