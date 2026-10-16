@@ -53,6 +53,8 @@ YouTubeへのアップロードとOmniCampusへの提出は別途必要です。
 
 ## 記録した結果
 
+評価条件は[`it_desk/run_hybrid.py`](it_desk/run_hybrid.py)の`main()`内の`trials`で指定しています。`seed=900`は`developer`、`seed=901`は`standard`に対応します。ノートブックの6から`scripts/evaluate.py`を通じてこの2試行を実行し、結果は評価フォルダ内の`evaluation/summary.json`に記録します。これらは開発時にも使用した条件であり、未知の配置での性能は未検証です。
+
 | seed | 指示 | シミュレーション時間 | 最大持上げ量 | 結果 |
 |---|---|---:|---:|---|
 | 900 | developer | 91.20秒 | 13.0 cm | 成功 |
