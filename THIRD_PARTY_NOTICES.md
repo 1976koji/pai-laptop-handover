@@ -7,7 +7,7 @@ The repository's MIT license applies to original project code. It does not relic
   - Changes: custom support adapters, removal of stock gripper housing/fingers in the generated simulation, collision-mesh reflection handling, idealized gravity compensation. Not an endorsement by the manufacturer.
 - LeRobot: https://github.com/huggingface/lerobot
   - Used package version: `0.6.1`. Its license and dependencies retain their upstream terms.
-- PI05 base weights: https://huggingface.co/lerobot/pi05_base
+- $\pi_{0.5}$ base weights: https://huggingface.co/lerobot/pi05_base
   - Base weights and fine-tuned weights are not included in this repository. Follow the model's terms separately.
 - PaliGemma tokenizer: https://huggingface.co/google/paligemma-3b-pt-224
   - Access may require acceptance of its terms. Never commit access tokens.
