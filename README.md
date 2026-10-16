@@ -1,12 +1,12 @@
 # Dual-arm laptop-case delivery for an IT service desk
 
-ROS 2・Gazebo・LeRobot π0.5を用いた情報システム窓口向け双腕PCケース搬送。
+ROS 2・Gazebo・LeRobot $\pi_{0.5}$を用いた情報システム窓口向け双腕PCケース搬送。
 
 Physical AI 応用1 最終課題 / OmniCampus account: **kojikoji_s**
 
 ## What this project demonstrates
 
-A learned PI05 model proposes actions from two camera views, joint state and a task instruction. Its proposal determines forward progress along a **classically designed bimanual path**. The OpenArm-based robot supports a laptop case, lifts it, places it on a pickup stand, and withdraws both supports in Gazebo. The recorded final configuration completed **2 of 2 development trials**.
+A learned $\pi_{0.5}$ model proposes actions from two camera views, joint state and a task instruction. Its proposal determines forward progress along a **classically designed bimanual path**. The OpenArm-based robot supports a laptop case, lifts it, places it on a pickup stand, and withdraws both supports in Gazebo. The recorded final configuration completed **2 of 2 development trials**.
 
 This is a fixed-cell simulation, not mobile shelf retrieval or direct human handover. Path geometry and sequencing are not learned. Physics pauses during policy inference, so the video does not demonstrate real-time operation. No teacher fallback or minimum automatic forward motion is used.
 
@@ -43,7 +43,7 @@ YouTubeへのアップロードとOmniCampusへの提出は別途必要です。
 | 段階 | 主なプログラム | 処理 |
 |---|---|---|
 | 3 教師データ収集 | `it_desk/collect.py` | 設計済みの教師制御でGazeboのロボットを動かし、画像・関節状態・正解動作を収集。この段階ではモデルを学習しません。 |
-| 4 初回学習 | `it_desk/train.py` | 成功した教師データを用い、事前学習済みπ0.5の動作生成部分を500ステップ追加学習します。 |
+| 4 初回学習 | `it_desk/train.py` | 成功した教師データを用い、事前学習済み$\pi_{0.5}$の動作生成部分を500ステップ追加学習します。 |
 | 5 追加学習 | `it_desk/train_refine.py` | 4の重みを引き継ぎ、さらに1,000ステップ学習します。 |
 | 6 評価・推論 | `scripts/evaluate.py` → `it_desk/policy.py` | 学習済み重みを読み込み、2視点の画像・関節状態・タスク指示から、次の関節目標の列を予測します。評価中は重みを更新しません。 |
 
