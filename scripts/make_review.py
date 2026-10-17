@@ -12,10 +12,9 @@ def main():
   episodes=sorted(a.evaluation.glob('hybrid_*'))
   if len(episodes)!=2:raise RuntimeError('Expected two hybrid trial folders')
   for i,ep in enumerate(episodes):os.symlink(ep.resolve(),root/f'episode_{i:03d}')
-  encode(root,root/'raw.mp4',False)
+  encode(root,root/'raw.mp4',False,playback_speed=2)
   a.out.parent.mkdir(parents=True,exist_ok=True)
-  label='2x simulation time | Physics paused during AI inference'
-  subprocess.run(['ffmpeg','-v','error','-i',str(root/'raw.mp4'),'-vf',f"setpts=0.5*PTS,drawtext=text='{label}':fontsize=14:fontcolor=white:box=1:boxcolor=black@0.8:x=8:y=h-24",'-r','10','-c:v','libx264','-pix_fmt','yuv420p','-movflags','+faststart',str(a.out)],check=True)
+  subprocess.run(['ffmpeg','-v','error','-i',str(root/'raw.mp4'),'-vf',"setpts=0.5*PTS",'-r','10','-c:v','libx264','-pix_fmt','yuv420p','-movflags','+faststart',str(a.out)],check=True)
   duration=float(json.loads(subprocess.check_output(['ffprobe','-v','quiet','-show_format','-of','json',str(a.out)]))['format']['duration'])
   print(json.dumps({'duration_seconds':duration,'duration_requirement_met':60<=duration<=180,'note':'Review actual trial results before submission.'}))
 if __name__=='__main__':main()
