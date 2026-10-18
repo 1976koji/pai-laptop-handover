@@ -1,16 +1,16 @@
 # オフィスなどにおけるノート型パソコン搬送に向けた双腕ロボットの基礎検証
 
-Preliminary validation of a dual-arm robot for laptop transport in office settings
+(English translation follows below)
 
 ROS 2・Gazebo・LeRobot $\pi_{0.5}$を用い、将来の情報システム窓口での貸出・受け渡しに向けた初期段階の搬送を検証します。搬送物は、ノート型パソコンを想定したケース形状の簡略化モデルです。ノート型パソコンの詳細構造や実機の物性を再現したものではありません。
 
 Physical AI 応用1 最終課題 / OmniCampus account: **kojikoji_s**
 
-## What this project demonstrates
+## 本プロジェクトで検証すること
 
-A learned $\pi_{0.5}$ model proposes actions from two camera views, joint state and a task instruction. Its proposal determines forward progress along a **classically designed bimanual path**. The OpenArm-based robot supports a simplified case-shaped object representing a laptop, lifts it, places it on a pickup stand, and withdraws both supports in Gazebo. The recorded final configuration completed **2 of 2 development trials**.
+学習済み$\pi_{0.5}$モデルは、2視点の画像・関節状態・タスク指示から動作を提案します。その提案により、**通常制御で設計した双腕経路**に沿う進行量を決めます。OpenArm由来のロボットがノート型パソコンを想定した簡略化モデルを支持し、持ち上げ、受取台に置き、両支持具を退避させます。開発時に記録した最終構成では、**開発用2試行中2試行が成功**しました。
 
-This is a fixed-cell simulation, not mobile shelf retrieval or direct human handover. Path geometry and sequencing are not learned. Physics pauses during policy inference, so the video does not demonstrate real-time operation. No teacher fallback or minimum automatic forward motion is used.
+固定環境でのシミュレーションであり、移動しながら棚から取り出す動作や人への直接手渡しは含みません。経路形状と工程順序は学習していません。方策推論中は物理シミュレーションを停止するため、映像は実時間動作の達成を示しません。教師制御への自動切替や最低限の自動前進量は使用していません。
 
 ## 提出物
 
@@ -41,7 +41,7 @@ This is a fixed-cell simulation, not mobile shelf retrieval or direct human hand
 
 ## 学習・推論を行う箇所
 
-**学習はノートブックの4・5、推論は6で行います。いずれもColabのGPUを使用します。**
+**学習はノートブックの4・5、推論は6で行います。実行する場合はいずれもColabのGPUを使用します。** Google Driveの保存済みデータを使用する場合、不要な学習は自動で省略し、揃っている評価記録は再利用します。
 
 | 段階 | 主なプログラム | 処理 |
 |---|---|---|
@@ -74,12 +74,12 @@ This is a fixed-cell simulation, not mobile shelf retrieval or direct human hand
 1. [PAI_submission.ipynb](notebooks/PAI_submission.ipynb)をダウンロード。
 2. Colabで「ファイル」→「ノートブックをアップロード」から開く。
 3. ランタイムを**A100・ハイメモリ**に設定。
-4. **上から順に、各セルの完了を確認しながら実行**。認証を求められたらHugging Faceの読み取りトークンを入力。
+4. **上から順に、各セルの完了を確認しながら実行**。最初のプルダウンで、Driveの保存済みデータ（既定は利用可能な最新版）、保存日時の指定、または新規学習を選択。認証を求められたら自分のHugging Face読み取りトークンを入力。
 
 ## 限界
 
 - 学習済みモデルと教師データは同梱していません。
-- 2026年10月18日、現行公開版のUAT（ユーザー受入テスト）が完了したことを利用者が確認しました。今回の説明文の更新はプログラムの動作を変更しません。今後プログラムや依存環境を変更した場合は、その変更に応じて再検証してください。
+- 2026年10月18日、従来の学習・制御構成のUAT（ユーザー受入テスト）完了を利用者が確認しました。その後の保存データ選択・実行管理・両視点記録の変更は、合成データと分岐テストで確認していますが、更新後の構成全体についてColab/GazeboでのUATは未実施です。今回の日英併記は実行コードを変更しません。
 - 腕は搬送物の脇から開始。待機姿勢からの接近、移動台車、複数在庫探索、人の受領確認は未実装。
 - 支持板で接触支持。搬送物の固定接続・瞬間移動は使用しない。
 - ロボットの重力補償はリンク重力無効化による理想化。自己衝突は無効。
@@ -90,3 +90,99 @@ This is a fixed-cell simulation, not mobile shelf retrieval or direct human hand
 自作コードは[MIT License](LICENSE)。ロボット資産、モデル、依存ソフトウェアは各配布元の条件に従います。[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)を参照してください。
 
 設計・コード・デバッグ・資料作成には生成AIの支援を利用しました。実験結果と動画は、実際のモデル学習およびGazebo上でのロボット制御の実行記録に基づきます。
+
+
+---
+
+## English
+
+# Preliminary validation of a dual-arm robot for laptop transport in office settings
+
+Using ROS 2, Gazebo and LeRobot $\pi_{0.5}$, this project validates an initial transport task toward future laptop lending and handover at an IT service desk. The object is a simplified case-shaped model representing a laptop; it does not reproduce a laptop's detailed structure or real material properties.
+
+Physical AI Advanced 1 Final Project / OmniCampus account: **kojikoji_s**
+
+## What this project demonstrates
+
+A learned $\pi_{0.5}$ model proposes actions from two camera views, joint state and a task instruction. Its proposal determines progress along a **classically designed bimanual path**. The OpenArm-based robot supports the simplified laptop model, lifts it, places it on a receiving platform, and withdraws both supports in Gazebo. The recorded final development configuration completed **2 of 2 development trials**.
+
+This is a fixed-cell simulation, not mobile shelf retrieval or direct human handover. Path geometry and sequencing are not learned. Physics pauses during policy inference, so the video does not demonstrate real-time operation. No teacher fallback or minimum automatic forward motion is used.
+
+## Deliverables
+
+- [Submitted video (YouTube)](https://www.youtube.com/watch?v=9SkMPO6dn9I): **1 minute 40 seconds (100 seconds), at 2x simulation-time speed**. It records new executions of two conditions checked during development.
+- On reruns, notebook section 7 generates `review_2x.mp4`. Check the actual duration of each generated file.
+- The PDF report is provided separately.
+- The editable LaTeX source and compilation package are provided separately.
+- Implementation: [it_desk/](it_desk/); execution helpers: [scripts/](scripts/).
+- [Colab notebook](notebooks/PAI_submission.ipynb) / [Reproduction instructions](docs/REPRODUCE.md).
+
+The submission video is available at the YouTube URL above. OmniCampus submission is a separate procedure. A channel profile URL does not replace the video URL. Use the YouTube title `PAI最終課題_kojikoji_s` and public or unlisted visibility.
+
+## Training and control
+
+| Item | Implementation |
+|---|---|
+| Robot | 14-joint model derived from OpenArm V2, with custom support plates |
+| Physics environment | ROS 2 + Gazebo Harmonic; transport through contact support |
+| Base model | LeRobot `lerobot/pi05_base`, pinned revision |
+| Training environment | Google Colab A100 GPU (80 GB GPU memory), high-RAM setting, float32. GPU memory and system RAM are separate resources |
+| Teacher data | Development record: 23 successful training trials and 6 successful validation trials. Check each run's collection results |
+| Optimization | Initial 500 steps, followed by 1,000 additional steps starting from the initial weights |
+| Refinement validation loss | Development record: 0.01913 → 0.01530; this is not a transport success rate |
+| AI role | Propose joint targets from images, joint state and instructions; determine the progress coefficient after projection |
+| Conventional-control role | Path, phase order, dual-arm synchronization, joint limits and stability checks |
+
+Predicted joint targets are converted to hand displacements and projected onto the direction of the next path target. The progress coefficient is bounded to 0–1. Zero or negative projection produces no forward progress. See [cooperative.py](it_desk/cooperative.py).
+
+## Where training and inference occur
+
+**Training runs in notebook sections 4 and 5; inference runs in section 6. Both use the Colab GPU when executed.** When saved Drive data is selected, unnecessary training is skipped and complete recorded evaluations are reused automatically.
+
+| Stage | Main program | Processing |
+|---|---|---|
+| 3 Teacher data collection | `it_desk/collect.py` | Runs the designed teacher controller in Gazebo and records images, joint states and target actions. No model training occurs here. |
+| 4 Initial training | `it_desk/train.py` | Fine-tunes the action-generation component of pretrained $\pi_{0.5}$ for 500 steps on successful demonstrations. |
+| 5 Additional training | `it_desk/train_refine.py` | Continues from section 4 weights for another 1,000 steps. |
+| 6 Evaluation/inference | `scripts/evaluate.py` → `it_desk/policy.py` | Loads trained weights and predicts sequences of joint targets from two camera images, joint state and task instructions. Weights are not updated during evaluation. |
+
+Refined weights are saved as `checkpoint_refined/expert.safetensors` within the run folder and loaded for inference in section 6.
+
+**Joint targets predicted by the task-fine-tuned $\pi_{0.5}$ policy are not sent directly to the robot.** `it_desk/run_hybrid.py` configures evaluation trials, and `it_desk/episode.py` executes the control loop. Within that loop, `it_desk/cooperative.py` projects policy predictions onto the predefined path direction to determine path progress. Conventional control handles path geometry, phase order, dual-arm synchronization and joint limits. Gazebo physics pauses while waiting for inference.
+
+## Recorded development results
+
+Evaluation conditions are specified by `trials` in `main()` of [it_desk/run_hybrid.py](it_desk/run_hybrid.py). Seed 900 corresponds to `developer`, and seed 901 to `standard`. Notebook section 6 executes these two trials through `scripts/evaluate.py`, with results saved as `evaluation/summary.json` within the evaluation output folder. These conditions were also used during development; performance on unseen placements has not been tested. The seeds control initial-position randomness in `world.py` and inference-noise randomness passed from `episode.py`.
+
+The following values are development diagnostic records, not measurements from the October 16, 2026 UAT.
+
+| Seed | Instruction | Simulation time | Maximum lift | Result |
+|---|---|---:|---:|---|
+| 900 | developer | 91.20 s | 13.0 cm | Success |
+| 901 | standard | 93.46 s | 14.3 cm | Success |
+
+Success requires lifting, level placement at the target, withdrawal of both supports, and at least two seconds of stability. Source records are in separately saved diagnostic ZIPs, not published in this repository. Generalization to unseen placements and real-hardware performance remain untested.
+
+Earlier direct joint control resulted in a drop. These results do not establish that the learned model alone controls the entire trajectory. An earlier test with policy-derived progress disabled produced no motion, but superiority over constant progress or random outputs has not been established.
+
+## How to run
+
+1. Download [PAI_submission.ipynb](notebooks/PAI_submission.ipynb).
+2. In Colab, choose **File → Upload notebook**.
+3. Select an **A100 GPU and high-RAM** runtime.
+4. **Run cells in order, confirming each completes.** In the initial dropdown, choose saved Drive data (latest usable data by default), a specific saved run, or new collection/training. If prompted, enter your own Hugging Face read token.
+
+## Limitations
+
+- Trained weights and teacher data are not included.
+- On October 18, 2026, the user confirmed UAT completion for the preceding training/control configuration. Subsequent saved-data selection, execution management and dual-view recording changes have been checked with synthetic data and branch tests; end-to-end Colab/Gazebo UAT of that updated workflow remains pending. This bilingual documentation update does not modify executable code.
+- Arms start beside the object. Home-to-object approach, a mobile base, multiple-item inventory search and human receipt confirmation are not implemented.
+- Support plates carry the object through contact. No fixed attachment or teleportation is used.
+- Gravity compensation is idealized by disabling gravity on robot links. Self-collision is disabled.
+- `ready_for_collection` means the object is ready on the receiving platform; it does not mean a lending transaction is complete.
+
+## License and creation assistance
+
+Original code is released under the [MIT License](LICENSE). Robot assets, model weights and dependencies remain subject to their respective terms. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+
+Generative AI assisted with design, coding, debugging and documentation. Experimental results and videos are based on actual model training and recorded robot-control execution in Gazebo.
