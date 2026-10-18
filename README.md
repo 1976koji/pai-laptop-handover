@@ -14,7 +14,7 @@ Physical AI 応用1 最終課題 / OmniCampus account: **kojikoji_s**
 
 ## 提出物
 
-- [提出動画（YouTube）](https://www.youtube.com/watch?v=9SkMPO6dn9I)：**1分40秒（100秒）、シミュレーション時間基準の2倍速**。開発時に確認した2条件で改めて実行した搬送記録です。
+- [提出動画（YouTube）](https://www.youtube.com/watch?v=OnbQVtdJNwU)：**1分39秒（99秒）、シミュレーション時間基準の2倍速**。開発時に確認した2条件で改めて実行した搬送記録です。
 - 再実行時の動画はノートブックの7で`review_2x.mp4`として生成します。長さは実行ごとに生成ファイルで確認してください。
 - 説明資料PDFは別ファイルで提供。
 - 編集・コンパイル用のLaTeXソース一式は別ファイルで提供。
@@ -110,7 +110,7 @@ This is a fixed-cell simulation, not mobile shelf retrieval or direct human hand
 
 ## Deliverables
 
-- [Submitted video (YouTube)](https://www.youtube.com/watch?v=9SkMPO6dn9I): **1 minute 40 seconds (100 seconds), at 2x simulation-time speed**. It records new executions of two conditions checked during development.
+- [Submitted video (YouTube)](https://www.youtube.com/watch?v=OnbQVtdJNwU): **1 minute 39 seconds (99 seconds), at 2x simulation-time speed**. It records new executions of two conditions checked during development.
 - On reruns, notebook section 7 generates `review_2x.mp4`. Check the actual duration of each generated file.
 - The PDF report is provided separately.
 - The editable LaTeX source and compilation package are provided separately.
