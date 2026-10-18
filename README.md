@@ -1,33 +1,36 @@
-# Dual-arm laptop-case delivery for an IT service desk
+# オフィスなどにおけるノート型パソコン搬送に向けた双腕ロボットの基礎検証
 
-ROS 2・Gazebo・LeRobot $\pi_{0.5}$を用いた情報システム窓口向け双腕PCケース搬送。
+Preliminary validation of a dual-arm robot for laptop transport in office settings
+
+ROS 2・Gazebo・LeRobot $\pi_{0.5}$を用い、将来の情報システム窓口での貸出・受け渡しに向けた初期段階の搬送を検証します。搬送物は、ノート型パソコンを想定したケース形状の簡略化モデルです。ノート型パソコンの詳細構造や実機の物性を再現したものではありません。
 
 Physical AI 応用1 最終課題 / OmniCampus account: **kojikoji_s**
 
 ## What this project demonstrates
 
-A learned $\pi_{0.5}$ model proposes actions from two camera views, joint state and a task instruction. Its proposal determines forward progress along a **classically designed bimanual path**. The OpenArm-based robot supports a laptop case, lifts it, places it on a pickup stand, and withdraws both supports in Gazebo. The recorded final configuration completed **2 of 2 development trials**.
+A learned $\pi_{0.5}$ model proposes actions from two camera views, joint state and a task instruction. Its proposal determines forward progress along a **classically designed bimanual path**. The OpenArm-based robot supports a simplified case-shaped object representing a laptop, lifts it, places it on a pickup stand, and withdraws both supports in Gazebo. The recorded final configuration completed **2 of 2 development trials**.
 
 This is a fixed-cell simulation, not mobile shelf retrieval or direct human handover. Path geometry and sequencing are not learned. Physics pauses during policy inference, so the video does not demonstrate real-time operation. No teacher fallback or minimum automatic forward motion is used.
 
 ## 提出物
 
-- 動画はノートブックの7で`review_2x.mp4`として生成。シミュレーション時間の**2倍速**です。2026年10月16日に確認したUAT動画は86.2秒でした。再実行時の長さは生成ファイルで確認してください。
+- [提出動画（YouTube）](https://www.youtube.com/watch?v=9SkMPO6dn9I)：**1分40秒（100秒）、シミュレーション時間基準の2倍速**。開発時に確認した2条件で改めて実行した搬送記録です。
+- 再実行時の動画はノートブックの7で`review_2x.mp4`として生成します。長さは実行ごとに生成ファイルで確認してください。
 - 説明資料PDFは別ファイルで提供。
-- 編集用Wordは別ファイルで提供。
+- 編集・コンパイル用のLaTeXソース一式は別ファイルで提供。
 - 実装：[`it_desk/`](it_desk/)、実行補助：[`scripts/`](scripts/)
 - [Colab用ノートブック](notebooks/PAI_submission.ipynb) / [実行手順](docs/REPRODUCE.md)
 
-YouTubeへのアップロードとOmniCampusへの提出は別途必要です。チャンネルの概要URLは動画の提出URLの代わりにはなりません。YouTubeタイトルは`PAI最終課題_kojikoji_s`、公開または限定公開を指定してください。
+提出動画は上記YouTube URLで公開しています。OmniCampusへの提出手続きは別途必要です。チャンネルの概要URLは動画の提出URLの代わりにはなりません。YouTubeタイトルは`PAI最終課題_kojikoji_s`、公開または限定公開を指定してください。
 
 ## 学習と制御
 
 | 項目 | 実施内容 |
 |---|---|
-| ロボット | OpenArm V2由来の14関節モデル、独自のケース支持板 |
+| ロボット | OpenArm V2由来の14関節モデル、独自の搬送物支持板 |
 | 物理環境 | ROS 2 + Gazebo Harmonic、接触支持による搬送 |
 | 基盤モデル | LeRobot `lerobot/pi05_base`、revision固定 |
-| 学習環境 | Google Colab、NVIDIA A100 80GB、float32 |
+| 学習環境 | Google ColabのA100 GPU（GPUメモリ80GB）、ハイメモリ設定、float32。GPUメモリとシステムRAMは別の資源 |
 | 教師データ | 開発時の記録：学習23成功試行、検証6成功試行。収集結果は実行ごとに確認 |
 | 最適化 | 初回500ステップ + 重みを引き継ぐ追加1,000ステップ |
 | 追加学習の検証損失 | 開発時の記録：0.01913 → 0.01530。搬送成功率ではない |
@@ -49,7 +52,7 @@ YouTubeへのアップロードとOmniCampusへの提出は別途必要です。
 
 追加学習した重みは、実行フォルダ内の`checkpoint_refined/expert.safetensors`に保存され、6の推論時に読み込まれます。
 
-**AIが提案した関節目標を、そのままロボットへ送る構成ではありません。** `it_desk/run_hybrid.py`が評価試行を設定し、`it_desk/episode.py`が実際の制御ループを実行します。その中で`it_desk/cooperative.py`がAIの提案を設計済み経路の方向へ射影し、経路上の進行量に反映します。経路の形状・工程順序・双腕の同期・関節制限は通常の制御が担当します。推論待ちの間はGazeboの物理時間を停止します。
+**タスク固有データで追加学習した$\pi_{0.5}$方策が予測した関節目標を、そのままロボットへ送る構成ではありません。** `it_desk/run_hybrid.py`が評価試行を設定し、`it_desk/episode.py`が実際の制御ループを実行します。その中で`it_desk/cooperative.py`が学習済み方策の予測を設計済み経路の方向へ射影し、経路上の進行量に反映します。経路の形状・工程順序・双腕の同期・関節制限は通常の制御が担当します。推論待ちの間はGazeboの物理シミュレーションの進行を一時停止します。
 
 ## 開発時に記録した結果
 
@@ -76,9 +79,9 @@ YouTubeへのアップロードとOmniCampusへの提出は別途必要です。
 ## 限界
 
 - 学習済みモデルと教師データは同梱していません。
-- 2026年10月16日のUATでは、評価時のPython環境選択を途中修正した後、評価・動画生成・Drive保存の正常終了を確認しました。修正済み公開版を新規環境で途中修正なく実行するUATは、まだ完了確認していません。
-- 腕はケース横から開始。待機姿勢からの接近、移動台車、複数在庫探索、人の受領確認は未実装。
-- 支持板で接触支持。ケースの固定接続・瞬間移動は使用しない。
+- 2026年10月18日、現行公開版のUAT（ユーザー受入テスト）が完了したことを利用者が確認しました。今回の説明文の更新はプログラムの動作を変更しません。今後プログラムや依存環境を変更した場合は、その変更に応じて再検証してください。
+- 腕は搬送物の脇から開始。待機姿勢からの接近、移動台車、複数在庫探索、人の受領確認は未実装。
+- 支持板で接触支持。搬送物の固定接続・瞬間移動は使用しない。
 - ロボットの重力補償はリンク重力無効化による理想化。自己衝突は無効。
 - `ready_for_collection`は受取台への準備完了であり、貸出処理完了ではない。
 
