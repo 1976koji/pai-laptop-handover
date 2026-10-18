@@ -24,6 +24,7 @@ def image_array(msg):
 class Robot(Node):
     def __init__(self,out,mode,target,joint_offsets=None):
         super().__init__('it_desk_controller');self.joint_offsets=np.zeros(14) if joint_offsets is None else np.asarray(joint_offsets,dtype=float);self.out=out;self.mode=mode;self.target=target;self.phase='startup'
+        self.record_camera_views=os.environ.get('PAI_RECORD_CAMERA_VIEWS','0')=='1';self.camera_frames={'front':[],'overhead':[]};self.camera_last={'front':-1.,'overhead':-1.}
         self.q=None;self.images={};self.part=None;self.quat=None;self.t=None;self.lock=threading.Lock();self.times={};self.frames=[];self.last_frame=-1.;self.record=False;self.fatal=None
         self.control_service='/world/'+ET.parse(out/'world.sdf').getroot().find('world').attrib['name']+'/control'
         self.control_client=self.create_client(ControlWorld,self.control_service)
@@ -46,6 +47,11 @@ class Robot(Node):
         try:
             a=image_array(m);stamp=m.header.stamp.sec+m.header.stamp.nanosec*1e-9
             with self.lock:self.images[name]=a;self.times[name]=time.monotonic()
+            # Optional observational recording only; no change to policy inputs/control.
+            if self.record_camera_views and self.record and stamp>self.camera_last[name]+.15:
+                dest=self.out/'camera_views'/name;dest.mkdir(parents=True,exist_ok=True)
+                index=len(self.camera_frames[name]);Image.fromarray(a).save(dest/f'{index:05d}.jpg',quality=90)
+                self.camera_frames[name].append([stamp,index]);self.camera_last[name]=stamp
             if name=='front' and self.record and stamp>self.last_frame+.15:
                 self.last_frame=stamp;index=len(self.frames);im=Image.fromarray(a);d=ImageDraw.Draw(im)
                 d.rectangle((0,0,640,49),fill=(15,20,30));d.text((10,6),f'IT DESK | {self.mode.upper()} | {self.target} laptop',fill='white');d.text((10,26),f'{self.phase} | sim t={stamp:.1f}s | fixed dual-arm cell',fill='white')
@@ -198,6 +204,12 @@ def main():
         if paused:
             try:set_sim_paused(node,False)
             except Exception as resume_error:result['resume_error']=str(resume_error)
-        node.record=False;(a.out/'control_trace.json').write_text(json.dumps(trace));(a.out/'frames.json').write_text(json.dumps(node.frames));(a.out/'result.json').write_text(json.dumps(result,indent=2));(a.out/'inventory_events.json').write_text(json.dumps(events,indent=2));print(json.dumps(result,indent=2),flush=True);rclpy.shutdown();thread.join(timeout=2)
+        node.record=False
+        if node.record_camera_views:
+            for name,index in node.camera_frames.items():
+                dest=a.out/'camera_views'/name;dest.mkdir(parents=True,exist_ok=True)
+                (dest/'frames.json').write_text(json.dumps(index))
+        (a.out/'control_trace.json').write_text(json.dumps(trace));(a.out/'frames.json').write_text(json.dumps(node.frames));(a.out/'result.json').write_text(json.dumps(result,indent=2));(a.out/'inventory_events.json').write_text(json.dumps(events,indent=2));print(json.dumps(result,indent=2),flush=True);rclpy.shutdown();thread.join(timeout=2)
     if not result['completed']:raise SystemExit(1)
 if __name__=='__main__':main()
+
