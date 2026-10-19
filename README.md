@@ -10,17 +10,6 @@ Physical AI 応用1 最終課題 / OmniCampus account: **kojikoji_s**
 
 Gazeboの固定環境内で、OpenArm由来の双腕ロボットが搬送物を支持し、持ち上げ、受取台に置き、両支持具を退避させる一連の動作を検証します。AIと通常制御の役割分担は「学習と制御」、試行結果と評価条件は「開発時に記録した結果」に示します。
 
-## 提出物
-
-- [提出動画（YouTube）](https://www.youtube.com/watch?v=OnbQVtdJNwU)：**1分39秒（99秒）、シミュレーション時間基準の2倍速**。開発時に確認した2条件で改めて実行した搬送記録です。
-- 再実行時の動画はノートブックの7で`review_2x.mp4`として生成します。長さは実行ごとに生成ファイルで確認してください。
-- 説明資料PDFは別ファイルで提供。
-- 編集・コンパイル用のLaTeXソース一式は別ファイルで提供。
-- 実装：[`it_desk/`](it_desk/)、実行補助：[`scripts/`](scripts/)
-- [Colab用ノートブック](notebooks/PAI_submission.ipynb) / [実行手順](docs/REPRODUCE.md)
-
-YouTubeタイトルは`PAI最終課題_kojikoji_s`です。OmniCampusへの提出手続きは別途必要です。
-
 ## 学習と制御
 
 | 項目 | 実施内容 |
@@ -53,6 +42,8 @@ YouTubeタイトルは`PAI最終課題_kojikoji_s`です。OmniCampusへの提�
 
 ## 開発時に記録した結果
 
+[提出動画（YouTube）](https://www.youtube.com/watch?v=OnbQVtdJNwU)は、開発時に確認した2条件で改めて実行した搬送記録です。長さは**1分39秒（99秒）、シミュレーション時間基準の2倍速**です。
+
 評価条件は[`it_desk/run_hybrid.py`](it_desk/run_hybrid.py)の`main()`内の`trials`で指定しています。`seed=900`は`developer`、`seed=901`は`standard`に対応します。ノートブックの6から`scripts/evaluate.py`を通じてこの2試行を実行し、結果は評価フォルダ内の`evaluation/summary.json`に記録します。seedは`world.py`の初期位置の乱数と、`episode.py`から渡す推論ノイズの乱数に使用します。
 
 以下の数値は開発時の診断JSONに基づく記録であり、2026年10月16日のUATの実測値ではありません。
@@ -70,6 +61,8 @@ YouTubeタイトルは`PAI最終課題_kojikoji_s`です。OmniCampusへの提�
 
 本課題は、AIを用いた自動化の第一段階として、シミュレーションによる教師データ生成、追加学習、制御への統合、搬送テストまでを一通り実装したものです。その過程で必要となった対策と制約を整理し、次に検証すべき課題を明確にした点を成果として位置付けています。
 
+2026年10月18日、提出動画の作成に用いた版について、利用者がUAT（ユーザー受入テスト）の完了を確認しました。
+
 ## 実行方法
 
 1. [PAI_submission.ipynb](notebooks/PAI_submission.ipynb)をダウンロード。
@@ -80,10 +73,9 @@ YouTubeタイトルは`PAI最終課題_kojikoji_s`です。OmniCampusへの提�
 ## 限界
 
 - 学習済みモデルと教師データは同梱していません。
-- 2026年10月18日、従来の学習・制御構成のUAT（ユーザー受入テスト）完了を利用者が確認しました。その後の保存データ選択・実行管理・両視点記録の変更は、合成データと分岐テストで確認していますが、更新後の構成全体についてColab/GazeboでのUATは未実施です。今回の日英併記は実行コードを変更しません。
 - 腕は搬送物の脇から開始。待機姿勢からの接近、移動台車、複数在庫探索、人の受領確認は未実装。
-- 支持板で接触支持。搬送物の固定接続・瞬間移動は使用しない。
-- ロボットの重力補償はリンク重力無効化による理想化。自己衝突は無効。
+- 搬送物は支持板との物理接触で支えます。搬送物とロボットを固定接続する設定は使用していません。
+- 今回は搬送動作の基礎検証に範囲を絞り、ロボットを構成する各部品（リンク）に重力が作用しない設定にしています。実機で腕の自重を支えるための重力補償制御を再現したものではありません。また、ロボット自身の部品同士の衝突を扱う「自己衝突」の設定を無効にしているため、実機で部品同士が干渉せず動けることを、この検証だけで確認したわけではありません。
 - `ready_for_collection`は受取台への準備完了であり、貸出処理完了ではない。
 
 ## ライセンスと作成支援
@@ -105,17 +97,6 @@ Physical AI Advanced 1 Final Project / OmniCampus account: **kojikoji_s**
 ## What this project demonstrates
 
 In a fixed Gazebo environment, an OpenArm-based dual-arm robot supports the object, lifts it, places it on a receiving platform, and withdraws both supports. The roles of AI and conventional control are described under “Training and control”; trial outcomes and conditions are listed under “Recorded development results.”
-
-## Deliverables
-
-- [Submitted video (YouTube)](https://www.youtube.com/watch?v=OnbQVtdJNwU): **1 minute 39 seconds (99 seconds), at 2x simulation-time speed**. It records new executions of two conditions checked during development.
-- On reruns, notebook section 7 generates `review_2x.mp4`. Check the actual duration of each generated file.
-- The PDF report is provided separately.
-- The editable LaTeX source and compilation package are provided separately.
-- Implementation: [it_desk/](it_desk/); execution helpers: [scripts/](scripts/).
-- [Colab notebook](notebooks/PAI_submission.ipynb) / [Reproduction instructions](docs/REPRODUCE.md).
-
-The YouTube title is `PAI最終課題_kojikoji_s`. Submission through OmniCampus is a separate procedure.
 
 ## Training and control
 
@@ -149,6 +130,8 @@ Refined weights are saved as `checkpoint_refined/expert.safetensors` within the 
 
 ## Recorded development results
 
+The [submitted YouTube video](https://www.youtube.com/watch?v=OnbQVtdJNwU) records new executions of two conditions checked during development. It is **1 minute 39 seconds (99 seconds), at 2x simulation-time speed**.
+
 Evaluation conditions are specified by `trials` in `main()` of [it_desk/run_hybrid.py](it_desk/run_hybrid.py). Seed 900 corresponds to `developer`, and seed 901 to `standard`. Notebook section 6 executes these two trials through `scripts/evaluate.py`, with results saved as `evaluation/summary.json` within the evaluation output folder. The seeds control initial-position randomness in `world.py` and inference-noise randomness passed from `episode.py`.
 
 The following values are development diagnostic records, not measurements from the October 16, 2026 UAT.
@@ -166,6 +149,8 @@ In the initial implementation, joint targets predicted by the task-fine-tuned $\
 
 This project represents a first stage of AI-assisted automation: implementing the full sequence from simulated demonstration generation and fine-tuning to control integration and transport testing. Its contribution is to document the measures and constraints encountered during this process and identify the next questions to test.
 
+On October 18, 2026, the user confirmed completion of user acceptance testing (UAT) for the version used to produce the submitted video.
+
 ## How to run
 
 1. Download [PAI_submission.ipynb](notebooks/PAI_submission.ipynb).
@@ -176,10 +161,9 @@ This project represents a first stage of AI-assisted automation: implementing th
 ## Limitations
 
 - Trained weights and teacher data are not included.
-- On October 18, 2026, the user confirmed UAT completion for the preceding training/control configuration. Subsequent saved-data selection, execution management and dual-view recording changes have been checked with synthetic data and branch tests; end-to-end Colab/Gazebo UAT of that updated workflow remains pending. This bilingual documentation update does not modify executable code.
 - Arms start beside the object. Home-to-object approach, a mobile base, multiple-item inventory search and human receipt confirmation are not implemented.
-- Support plates carry the object through contact. No fixed attachment or teleportation is used.
-- Gravity compensation is idealized by disabling gravity on robot links. Self-collision is disabled.
+- The object is supported through physical contact with the support plates. It is not attached to the robot by a fixed joint.
+- To focus on preliminary transport validation, gravity is disabled for the robot's individual rigid components (links). This does not reproduce the gravity-compensation control needed to support the arms' own weight on real hardware. Self-collision, which handles collisions between the robot's own components, is also disabled. These tests therefore do not establish that the same motions would avoid interference between components on a real robot.
 - `ready_for_collection` means the object is ready on the receiving platform; it does not mean a lending transaction is complete.
 
 ## License and creation assistance
