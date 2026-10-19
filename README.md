@@ -52,7 +52,7 @@ Physical AI 応用1 最終課題 / OmniCampus account: **kojikoji_s**
 
 追加学習した重みは、実行フォルダ内の`checkpoint_refined/expert.safetensors`に保存され、6の推論時に読み込まれます。
 
-**タスク固有データで追加学習した$\pi_{0.5}$方策が予測した関節目標を、そのままロボットへ送る構成ではありません。** `it_desk/run_hybrid.py`が評価試行を設定し、`it_desk/episode.py`が実際の制御ループを実行します。その中で`it_desk/cooperative.py`が学習済み方策の予測を設計済み経路の方向へ射影し、経路上の進行量に反映します。経路の形状・工程順序・双腕の同期・関節制限は通常の制御が担当します。推論待ちの間はGazeboの物理シミュレーションの進行を一時停止します。
+[`it_desk/run_hybrid.py`](it_desk/run_hybrid.py)が評価試行を設定し、[`it_desk/episode.py`](it_desk/episode.py)が制御ループを実行します。前節の進行係数の計算は、このループから呼び出す[`it_desk/cooperative.py`](it_desk/cooperative.py)が担当します。
 
 ## 開発時に記録した結果
 
@@ -67,7 +67,13 @@ Physical AI 応用1 最終課題 / OmniCampus account: **kojikoji_s**
 
 成功には持ち上げ、目標位置への水平設置、両支持具の離脱、2秒以上の安定が必要です。元データは別途保存した診断ZIPにあります（本リポジトリには未公開）。これらは開発中に確認した配置であり、未知配置への汎化や実機の性能は未検証です。
 
-以前の直接関節制御では落下が生じました。学習済みモデルだけで全軌道を制御できたと主張するものではありません。先行する進行量無効化試験では動作しませんでしたが、一定進行量やランダム出力に対する優位性は未検証です。
+## 開発経緯と次の検証
+
+開発初期には、タスク固有データで追加学習した$\pi_{0.5}$方策が予測した関節目標を、関節ごとの移動量制限などを介して制御器へ渡していました。しかし、左右の支持位置が崩れ、搬送物が落下しました。そこで、前述の双腕協調制御へ変更し、限られた開発期間では、初期配置と搬送経路を限定したうえで、学習済みモデルを進行量の調整に組み込み、搬送を成功させることを目標としました。
+
+本課題は、AIを用いた自動化の第一段階として、シミュレーションによる教師データ生成、追加学習、制御への統合、搬送テストまでを一通り実装したものです。その過程で必要となった対策と制約を整理し、次に検証すべき課題を明確にした点を成果として位置付けています。
+
+次の段階では、学習済みモデルによる調整が搬送にどのように寄与するかを確かめます。具体的には、同じ搬送経路と条件の下で、AIを使わず一回の制御ごとに一定の進行量で動かす構成と比較し、搬送の安定性や所要時間の違いを調べることが考えられます。この比較は未実施です。また、推論中も物理シミュレーションを進めながら動作チャンクを連続的につなぐことや、未知の初期配置への対応も課題です。指付きハンド、移動機構、人の接近に対する安全確保への拡張は、検証可能な小さなテーマに分けて進め、実機での安全性確認を中長期的な目標とします。
 
 ## 実行方法
 
@@ -148,7 +154,7 @@ Predicted joint targets are converted to hand displacements and projected onto t
 
 Refined weights are saved as `checkpoint_refined/expert.safetensors` within the run folder and loaded for inference in section 6.
 
-**Joint targets predicted by the task-fine-tuned $\pi_{0.5}$ policy are not sent directly to the robot.** `it_desk/run_hybrid.py` configures evaluation trials, and `it_desk/episode.py` executes the control loop. Within that loop, `it_desk/cooperative.py` projects policy predictions onto the predefined path direction to determine path progress. Conventional control handles path geometry, phase order, dual-arm synchronization and joint limits. Gazebo physics pauses while waiting for inference.
+[`it_desk/run_hybrid.py`](it_desk/run_hybrid.py) configures evaluation trials, and [`it_desk/episode.py`](it_desk/episode.py) executes the control loop. The progress coefficient described in the preceding section is calculated by [`it_desk/cooperative.py`](it_desk/cooperative.py), which is called from that loop.
 
 ## Recorded development results
 
@@ -163,7 +169,13 @@ The following values are development diagnostic records, not measurements from t
 
 Success requires lifting, level placement at the target, withdrawal of both supports, and at least two seconds of stability. Source records are in separately saved diagnostic ZIPs, not published in this repository. Generalization to unseen placements and real-hardware performance remain untested.
 
-Earlier direct joint control resulted in a drop. These results do not establish that the learned model alone controls the entire trajectory. An earlier test with policy-derived progress disabled produced no motion, but superiority over constant progress or random outputs has not been established.
+## Development experience and next tests
+
+In the initial implementation, joint targets predicted by the task-fine-tuned $\pi_{0.5}$ policy were passed to the controller through safeguards such as per-joint movement limits. The left and right support positions nevertheless lost coordination, and the object fell. We therefore adopted the coordinated control described above. Within the limited development period, the goal was to complete transport with restricted initial placements and a predefined path, while using the learned model to adjust progress.
+
+This project represents a first stage of AI-assisted automation: implementing the full sequence from simulated demonstration generation and fine-tuning to control integration and transport testing. Its contribution is to document the measures and constraints encountered during this process and identify the next questions to test.
+
+The next stage is to determine how the learned adjustment contributes to transport. One possible test is to compare it, under the same path and conditions, with a controller that advances by a fixed amount at each control step without AI, examining differences in stability and completion time. This comparison has not yet been performed. Further tasks include continuously connecting action chunks while physics continues during inference, and handling unseen initial placements. Extensions to fingered hands, mobility and safety responses to approaching people should proceed as small, testable development steps, with safety validation on real hardware as a medium- to long-term goal.
 
 ## How to run
 
