@@ -8,9 +8,7 @@ Physical AI 応用1 最終課題 / OmniCampus account: **kojikoji_s**
 
 ## 本プロジェクトで検証すること
 
-学習済み $\pi_{0.5}$ モデルは、2視点の画像・関節状態・タスク指示から動作を提案します。その提案により、**通常制御で設計した双腕経路**に沿う進行量を決めます。OpenArm由来のロボットがノート型パソコンを想定した簡略化モデルを支持し、持ち上げ、受取台に置き、両支持具を退避させます。開発時に記録した最終構成では、**開発用2試行中2試行が成功**しました。
-
-固定環境でのシミュレーションであり、移動しながら棚から取り出す動作や人への直接手渡しは含みません。経路形状と工程順序は学習していません。方策推論中は物理シミュレーションを停止するため、映像は実時間動作の達成を示しません。教師制御への自動切替や最低限の自動前進量は使用していません。
+Gazeboの固定環境内で、OpenArm由来の双腕ロボットが搬送物を支持し、持ち上げ、受取台に置き、両支持具を退避させる一連の動作を検証します。AIと通常制御の役割分担は「学習と制御」、試行結果と評価条件は「開発時に記録した結果」に示します。
 
 ## 提出物
 
@@ -21,7 +19,7 @@ Physical AI 応用1 最終課題 / OmniCampus account: **kojikoji_s**
 - 実装：[`it_desk/`](it_desk/)、実行補助：[`scripts/`](scripts/)
 - [Colab用ノートブック](notebooks/PAI_submission.ipynb) / [実行手順](docs/REPRODUCE.md)
 
-提出動画は上記YouTube URLで公開しています。OmniCampusへの提出手続きは別途必要です。チャンネルの概要URLは動画の提出URLの代わりにはなりません。YouTubeタイトルは`PAI最終課題_kojikoji_s`、公開または限定公開を指定してください。
+YouTubeタイトルは`PAI最終課題_kojikoji_s`です。OmniCampusへの提出手続きは別途必要です。
 
 ## 学習と制御
 
@@ -32,12 +30,11 @@ Physical AI 応用1 最終課題 / OmniCampus account: **kojikoji_s**
 | 基盤モデル | LeRobot `lerobot/pi05_base`、revision固定 |
 | 学習環境 | Google ColabのA100 GPU（GPUメモリ80GB）、ハイメモリ設定、float32。GPUメモリとシステムRAMは別の資源 |
 | 教師データ | 開発時の記録：学習23成功試行、検証6成功試行。収集結果は実行ごとに確認 |
-| 最適化 | 初回500ステップ + 重みを引き継ぐ追加1,000ステップ |
 | 追加学習の検証損失 | 開発時の記録：0.01913 → 0.01530。搬送成功率ではない |
 | AIの役割 | 画像・関節状態・指示から関節目標を提案し、射影後の進行係数を決める |
 | 通常制御の役割 | 経路、工程順序、双腕同期、関節制限と安定確認 |
 
-学習済み関節目標を手先変位へ変換し、経路の次の目標方向へ射影します。進行係数は0〜1。ゼロ・負の射影では前進しません。詳細は[`cooperative.py`](it_desk/cooperative.py)を参照してください。
+学習済み関節目標を手先変位へ変換し、経路の次の目標方向へ射影します。進行係数は0〜1。ゼロ・負の射影では前進しません。教師制御への自動切替や最低限の自動前進量は使用していません。推論待ちの間はGazeboの物理シミュレーションの進行を一時停止します。詳細は[`cooperative.py`](it_desk/cooperative.py)と[`episode.py`](it_desk/episode.py)を参照してください。
 
 ## 学習・推論を行う箇所
 
@@ -52,11 +49,11 @@ Physical AI 応用1 最終課題 / OmniCampus account: **kojikoji_s**
 
 追加学習した重みは、実行フォルダ内の`checkpoint_refined/expert.safetensors`に保存され、6の推論時に読み込まれます。
 
-[`it_desk/run_hybrid.py`](it_desk/run_hybrid.py)が評価試行を設定し、[`it_desk/episode.py`](it_desk/episode.py)が制御ループを実行します。前節の進行係数の計算は、このループから呼び出す[`it_desk/cooperative.py`](it_desk/cooperative.py)が担当します。
+[`it_desk/episode.py`](it_desk/episode.py)が制御ループを実行します。前節の進行係数の計算は、このループから呼び出す[`it_desk/cooperative.py`](it_desk/cooperative.py)が担当します。
 
 ## 開発時に記録した結果
 
-評価条件は[`it_desk/run_hybrid.py`](it_desk/run_hybrid.py)の`main()`内の`trials`で指定しています。`seed=900`は`developer`、`seed=901`は`standard`に対応します。ノートブックの6から`scripts/evaluate.py`を通じてこの2試行を実行し、結果は評価フォルダ内の`evaluation/summary.json`に記録します。これらは開発時にも使用した条件であり、未知の配置での性能は未検証です。seedは`world.py`の初期位置の乱数と、`episode.py`から渡す推論ノイズの乱数に使用します。
+評価条件は[`it_desk/run_hybrid.py`](it_desk/run_hybrid.py)の`main()`内の`trials`で指定しています。`seed=900`は`developer`、`seed=901`は`standard`に対応します。ノートブックの6から`scripts/evaluate.py`を通じてこの2試行を実行し、結果は評価フォルダ内の`evaluation/summary.json`に記録します。seedは`world.py`の初期位置の乱数と、`episode.py`から渡す推論ノイズの乱数に使用します。
 
 以下の数値は開発時の診断JSONに基づく記録であり、2026年10月16日のUATの実測値ではありません。
 
@@ -67,13 +64,11 @@ Physical AI 応用1 最終課題 / OmniCampus account: **kojikoji_s**
 
 成功には持ち上げ、目標位置への水平設置、両支持具の離脱、2秒以上の安定が必要です。元データは別途保存した診断ZIPにあります（本リポジトリには未公開）。これらは開発中に確認した配置であり、未知配置への汎化や実機の性能は未検証です。
 
-## 開発経緯と次の検証
+## 開発経緯と位置付け
 
 開発初期には、タスク固有データで追加学習した$\pi_{0.5}$方策が予測した関節目標を、関節ごとの移動量制限などを介して制御器へ渡していました。しかし、左右の支持位置が崩れ、搬送物が落下しました。そこで、前述の双腕協調制御へ変更し、限られた開発期間では、初期配置と搬送経路を限定したうえで、学習済みモデルを進行量の調整に組み込み、搬送を成功させることを目標としました。
 
 本課題は、AIを用いた自動化の第一段階として、シミュレーションによる教師データ生成、追加学習、制御への統合、搬送テストまでを一通り実装したものです。その過程で必要となった対策と制約を整理し、次に検証すべき課題を明確にした点を成果として位置付けています。
-
-次の段階では、学習済みモデルによる調整が搬送にどのように寄与するかを確かめます。具体的には、同じ搬送経路と条件の下で、AIを使わず一回の制御ごとに一定の進行量で動かす構成と比較し、搬送の安定性や所要時間の違いを調べることが考えられます。この比較は未実施です。また、推論中も物理シミュレーションを進めながら動作チャンクを連続的につなぐことや、未知の初期配置への対応も課題です。指付きハンド、移動機構、人の接近に対する安全確保への拡張は、検証可能な小さなテーマに分けて進め、実機での安全性確認を中長期的な目標とします。
 
 ## 実行方法
 
@@ -97,7 +92,6 @@ Physical AI 応用1 最終課題 / OmniCampus account: **kojikoji_s**
 
 設計・コード・デバッグ・資料作成には生成AIの支援を利用しました。実験結果と動画は、実際のモデル学習およびGazebo上でのロボット制御の実行記録に基づきます。
 
-
 ---
 
 ## English
@@ -110,9 +104,7 @@ Physical AI Advanced 1 Final Project / OmniCampus account: **kojikoji_s**
 
 ## What this project demonstrates
 
-A learned $\pi_{0.5}$ model proposes actions from two camera views, joint state and a task instruction. Its proposal determines progress along a **classically designed bimanual path**. The OpenArm-based robot supports the simplified laptop model, lifts it, places it on a receiving platform, and withdraws both supports in Gazebo. The recorded final development configuration completed **2 of 2 development trials**.
-
-This is a fixed-cell simulation, not mobile shelf retrieval or direct human handover. Path geometry and sequencing are not learned. Physics pauses during policy inference, so the video does not demonstrate real-time operation. No teacher fallback or minimum automatic forward motion is used.
+In a fixed Gazebo environment, an OpenArm-based dual-arm robot supports the object, lifts it, places it on a receiving platform, and withdraws both supports. The roles of AI and conventional control are described under “Training and control”; trial outcomes and conditions are listed under “Recorded development results.”
 
 ## Deliverables
 
@@ -123,7 +115,7 @@ This is a fixed-cell simulation, not mobile shelf retrieval or direct human hand
 - Implementation: [it_desk/](it_desk/); execution helpers: [scripts/](scripts/).
 - [Colab notebook](notebooks/PAI_submission.ipynb) / [Reproduction instructions](docs/REPRODUCE.md).
 
-The submission video is available at the YouTube URL above. OmniCampus submission is a separate procedure. A channel profile URL does not replace the video URL. Use the YouTube title `PAI最終課題_kojikoji_s` and public or unlisted visibility.
+The YouTube title is `PAI最終課題_kojikoji_s`. Submission through OmniCampus is a separate procedure.
 
 ## Training and control
 
@@ -134,12 +126,11 @@ The submission video is available at the YouTube URL above. OmniCampus submissio
 | Base model | LeRobot `lerobot/pi05_base`, pinned revision |
 | Training environment | Google Colab A100 GPU (80 GB GPU memory), high-RAM setting, float32. GPU memory and system RAM are separate resources |
 | Teacher data | Development record: 23 successful training trials and 6 successful validation trials. Check each run's collection results |
-| Optimization | Initial 500 steps, followed by 1,000 additional steps starting from the initial weights |
 | Refinement validation loss | Development record: 0.01913 → 0.01530; this is not a transport success rate |
 | AI role | Propose joint targets from images, joint state and instructions; determine the progress coefficient after projection |
 | Conventional-control role | Path, phase order, dual-arm synchronization, joint limits and stability checks |
 
-Predicted joint targets are converted to hand displacements and projected onto the direction of the next path target. The progress coefficient is bounded to 0–1. Zero or negative projection produces no forward progress. See [cooperative.py](it_desk/cooperative.py).
+Predicted joint targets are converted to hand displacements and projected onto the direction of the next path target. The progress coefficient is bounded to 0–1. Zero or negative projection produces no forward progress. No teacher fallback or minimum automatic forward motion is used. Gazebo physics pauses while waiting for inference. See [cooperative.py](it_desk/cooperative.py) and [episode.py](it_desk/episode.py).
 
 ## Where training and inference occur
 
@@ -154,11 +145,11 @@ Predicted joint targets are converted to hand displacements and projected onto t
 
 Refined weights are saved as `checkpoint_refined/expert.safetensors` within the run folder and loaded for inference in section 6.
 
-[`it_desk/run_hybrid.py`](it_desk/run_hybrid.py) configures evaluation trials, and [`it_desk/episode.py`](it_desk/episode.py) executes the control loop. The progress coefficient described in the preceding section is calculated by [`it_desk/cooperative.py`](it_desk/cooperative.py), which is called from that loop.
+[`it_desk/episode.py`](it_desk/episode.py) executes the control loop. The progress coefficient described in the preceding section is calculated by [`it_desk/cooperative.py`](it_desk/cooperative.py), which is called from that loop.
 
 ## Recorded development results
 
-Evaluation conditions are specified by `trials` in `main()` of [it_desk/run_hybrid.py](it_desk/run_hybrid.py). Seed 900 corresponds to `developer`, and seed 901 to `standard`. Notebook section 6 executes these two trials through `scripts/evaluate.py`, with results saved as `evaluation/summary.json` within the evaluation output folder. These conditions were also used during development; performance on unseen placements has not been tested. The seeds control initial-position randomness in `world.py` and inference-noise randomness passed from `episode.py`.
+Evaluation conditions are specified by `trials` in `main()` of [it_desk/run_hybrid.py](it_desk/run_hybrid.py). Seed 900 corresponds to `developer`, and seed 901 to `standard`. Notebook section 6 executes these two trials through `scripts/evaluate.py`, with results saved as `evaluation/summary.json` within the evaluation output folder. The seeds control initial-position randomness in `world.py` and inference-noise randomness passed from `episode.py`.
 
 The following values are development diagnostic records, not measurements from the October 16, 2026 UAT.
 
@@ -167,15 +158,13 @@ The following values are development diagnostic records, not measurements from t
 | 900 | developer | 91.20 s | 13.0 cm | Success |
 | 901 | standard | 93.46 s | 14.3 cm | Success |
 
-Success requires lifting, level placement at the target, withdrawal of both supports, and at least two seconds of stability. Source records are in separately saved diagnostic ZIPs, not published in this repository. Generalization to unseen placements and real-hardware performance remain untested.
+Success requires lifting, level placement at the target, withdrawal of both supports, and at least two seconds of stability. Source records are in separately saved diagnostic ZIPs, not published in this repository. These placements were also checked during development; generalization to unseen placements and real-hardware performance remain untested.
 
-## Development experience and next tests
+## Development experience and project scope
 
 In the initial implementation, joint targets predicted by the task-fine-tuned $\pi_{0.5}$ policy were passed to the controller through safeguards such as per-joint movement limits. The left and right support positions nevertheless lost coordination, and the object fell. We therefore adopted the coordinated control described above. Within the limited development period, the goal was to complete transport with restricted initial placements and a predefined path, while using the learned model to adjust progress.
 
 This project represents a first stage of AI-assisted automation: implementing the full sequence from simulated demonstration generation and fine-tuning to control integration and transport testing. Its contribution is to document the measures and constraints encountered during this process and identify the next questions to test.
-
-The next stage is to determine how the learned adjustment contributes to transport. One possible test is to compare it, under the same path and conditions, with a controller that advances by a fixed amount at each control step without AI, examining differences in stability and completion time. This comparison has not yet been performed. Further tasks include continuously connecting action chunks while physics continues during inference, and handling unseen initial placements. Extensions to fingered hands, mobility and safety responses to approaching people should proceed as small, testable development steps, with safety validation on real hardware as a medium- to long-term goal.
 
 ## How to run
 
